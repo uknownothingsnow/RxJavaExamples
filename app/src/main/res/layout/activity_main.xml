@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.github.lzyzsd.rxexamples.MainActivity">
+
+    <Button
+        android:id="@+id/btn_run_concat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="concat"/>
+
+    <Button
+        android:id="@+id/btn_run_merge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="merge"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/btn_fetch_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="fetch data"/>
+
+        <Button
+            android:id="@+id/btn_clear_cache"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="clear cache"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_throttle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Throttle"/>
+</LinearLayout>
