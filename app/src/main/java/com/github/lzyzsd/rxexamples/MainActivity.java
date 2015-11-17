@@ -49,7 +49,8 @@ public class MainActivity extends Activity {
         testThrottle();
     }
 
-    //拼接两个Observable的输出，保证顺序
+    //拼接两个Observable的输出，保证顺序，按照Observable在concat中的顺序，依次将每个Observable产生的事件传递给订阅者
+    //只有当前面的Observable结束了，才会执行后面的
     private void testConcat() {
         Observable observable1 = createObservable1().subscribeOn(Schedulers.newThread());
         Observable observable2 = createObservable2().subscribeOn(Schedulers.newThread());
@@ -64,6 +65,7 @@ public class MainActivity extends Activity {
                 });
     }
 
+    //拼接两个Observable的输出，不保证顺序，按照事件产生的顺序发送给订阅者
     private void testMerge() {
         Observable.merge(createObservable1().subscribeOn(Schedulers.newThread()), createObservable2().subscribeOn(Schedulers.newThread()))
                 .subscribeOn(Schedulers.newThread())
