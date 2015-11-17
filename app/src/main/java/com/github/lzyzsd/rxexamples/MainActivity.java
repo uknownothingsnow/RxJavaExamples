@@ -51,10 +51,11 @@ public class MainActivity extends Activity {
 
     //拼接两个Observable的输出，保证顺序
     private void testConcat() {
-        Observable observable1 = createObservable1();
-        Observable observable2 = createObservable2();
+        Observable observable1 = createObservable1().subscribeOn(Schedulers.newThread());
+        Observable observable2 = createObservable2().subscribeOn(Schedulers.newThread());
 
         Observable.concat(observable1, observable2)
+                .subscribeOn(Schedulers.newThread())
                 .subscribe(new Action1<String>() {
                     @Override
                     public void call(String s) {
@@ -64,7 +65,8 @@ public class MainActivity extends Activity {
     }
 
     private void testMerge() {
-        Observable.merge(createObservable1(), createObservable2())
+        Observable.merge(createObservable1().subscribeOn(Schedulers.newThread()), createObservable2().subscribeOn(Schedulers.newThread()))
+                .subscribeOn(Schedulers.newThread())
                 .subscribe(new Action1<String>() {
                     @Override
                     public void call(String s) {
@@ -140,36 +142,48 @@ public class MainActivity extends Activity {
         });
     }
 
-    private Observable createObservable2() {
-        return Observable.create(new Observable.OnSubscribe<String>() {
-                @Override
-                public void call(Subscriber<? super String> subscriber) {
-                    subscriber.onNext("e");
-                    sleep(2000);
-                    subscriber.onNext("f");
-                    sleep(2000);
-                    subscriber.onNext("g");
-                    sleep(2000);
-                    subscriber.onNext("h");
-                    subscriber.onCompleted();
-                }
-            });
+    private int random() {
+        return (int)(2000 * Math.random());
     }
 
     private Observable createObservable1() {
         return Observable.create(new Observable.OnSubscribe<String>() {
                 @Override
                 public void call(Subscriber<? super String> subscriber) {
+                    System.out.println("observable1 produce a");
                     subscriber.onNext("a");
-                    sleep(2000);
+                    sleep(random());
+                    System.out.println("observable1 produce b");
                     subscriber.onNext("b");
-                    sleep(2000);
+                    sleep(random());
+                    System.out.println("observable1 produce c");
                     subscriber.onNext("c");
-                    sleep(2000);
+                    sleep(random());
+                    System.out.println("observable1 produce d");
                     subscriber.onNext("d");
                     subscriber.onCompleted();
                 }
             });
+    }
+
+    private Observable createObservable2() {
+        return Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                System.out.println("observable2 produce e");
+                subscriber.onNext("e");
+                sleep(random());
+                System.out.println("observable2 produce f");
+                subscriber.onNext("f");
+                sleep(random());
+                System.out.println("observable2 produce g");
+                subscriber.onNext("g");
+                sleep(random());
+                System.out.println("observable2 produce h");
+                subscriber.onNext("h");
+                subscriber.onCompleted();
+            }
+        });
     }
 
     private void sleep(long time) {
