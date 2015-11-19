@@ -42,4 +42,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Throttle"/>
+
+    <Button
+        android:id="@+id/btn_test_tranform"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="复杂变换"/>
 </LinearLayout>

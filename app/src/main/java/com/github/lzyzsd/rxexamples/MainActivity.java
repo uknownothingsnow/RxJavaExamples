@@ -18,8 +18,10 @@ import rx.Observable;
 import rx.Single;
 import rx.SingleSubscriber;
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
 public class MainActivity extends Activity {
@@ -47,6 +49,38 @@ public class MainActivity extends Activity {
         rxPreferences = RxSharedPreferences.create(preferences);
 
         testThrottle();
+
+        Observable.just("hello")
+                //指定被观察者在新的线程中生产数据
+                .subscribeOn(Schedulers.newThread())
+                //指定观察者在UI主线程接收数据
+                .observeOn(AndroidSchedulers.mainThread())
+                //因为上面指定了在UI线程接收数据，所以这里可以做更新UI的事情
+                .subscribe(System.out::println);
+
+        Observable observable = Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                subscriber.onNext("a");
+                subscriber.onNext("b");
+                subscriber.onNext("c");
+                subscriber.onCompleted();
+            }
+        });
+
+        observable.subscribe(new Subscriber() {
+            @Override
+            public void onCompleted() {
+            }
+
+            @Override
+            public void onError(Throwable e) {
+            }
+
+            @Override
+            public void onNext(Object o) {
+            }
+        });
     }
 
     //拼接两个Observable的输出，保证顺序，按照Observable在concat中的顺序，依次将每个Observable产生的事件传递给订阅者
@@ -142,6 +176,39 @@ public class MainActivity extends Activity {
                 System.out.println("--------------subscribe: " + s);
             }
         });
+    }
+
+    @OnClick(R.id.btn_test_tranform)
+    public void testMap() {
+        Observable.just("1", "2", "2", "3", "4", "5")
+                .map(Integer::parseInt)
+                .filter(s -> s > 1)
+                .distinct()
+                .take(3)
+                .reduce((integer, integer2) -> integer.intValue() + integer2.intValue())
+                .subscribe(System.out::println);//9
+
+        Observable.just("a")
+            .lift(subscriber -> {
+                return new Subscriber<String>() {
+                    @Override
+                    public void onCompleted() {
+                        subscriber.onCompleted();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        subscriber.onError(e);
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+                        subscriber.onNext(1);
+                    }
+                };
+            })
+            .map(i -> i)
+            .subscribe(System.out::println);//1
     }
 
     private int random() {
