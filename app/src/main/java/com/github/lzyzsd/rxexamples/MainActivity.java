@@ -96,7 +96,7 @@ public class MainActivity extends Activity {
      * 需要登陆之后，根据拿到的token去获取消息列表
      */
     @OnClick(R.id.btn_login)
-    private void testNestedDependency(View view) {
+    public void testNestedDependency(View view) {
         NetworkService.getToken("username", "password")
                 .flatMap(s -> NetworkService.getMessage(s))
                 .subscribe(s -> {
