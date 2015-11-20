@@ -20,18 +20,10 @@ import java.util.concurrent.TimeUnit;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Observable;
-import rx.Single;
-import rx.SingleSubscriber;
 import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
 public class MainActivity extends Activity {
-
-    RxSharedPreferences rxPreferences;
 
     @OnClick(R.id.btn_run_concat)
     public void onRunConcatClick(View view) {
@@ -49,9 +41,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
-
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        rxPreferences = RxSharedPreferences.create(preferences);
 
         testThrottle();
 
@@ -86,7 +75,10 @@ public class MainActivity extends Activity {
 
     //拼接两个Observable的输出，不保证顺序，按照事件产生的顺序发送给订阅者
     private void testMerge() {
-        Observable.merge(DemoUtils.createObservable1().subscribeOn(Schedulers.newThread()), DemoUtils.createObservable2().subscribeOn(Schedulers.newThread()))
+        Observable<String> observable1 = DemoUtils.createObservable1().subscribeOn(Schedulers.newThread());
+        Observable<String> observable2 = DemoUtils.createObservable2().subscribeOn(Schedulers.newThread());
+
+        Observable.merge(observable1, observable2)
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(System.out::println);
     }
