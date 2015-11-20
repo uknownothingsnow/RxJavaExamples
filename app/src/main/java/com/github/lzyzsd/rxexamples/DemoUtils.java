@@ -11,7 +11,7 @@ public class DemoUtils {
         return (int)(2000 * Math.random());
     }
 
-    public static Observable createObservable1() {
+    public static Observable<String> createObservable1() {
         return Observable.create(new Observable.OnSubscribe<String>() {
             @Override
             public void call(Subscriber<? super String> subscriber) {
@@ -31,7 +31,7 @@ public class DemoUtils {
         });
     }
 
-    public static Observable createObservable2() {
+    public static Observable<String> createObservable2() {
         return Observable.create(new Observable.OnSubscribe<String>() {
             @Override
             public void call(Subscriber<? super String> subscriber) {
