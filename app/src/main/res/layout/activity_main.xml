@@ -48,4 +48,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="复杂变换"/>
+
+    <CheckBox
+        android:id="@+id/cb_test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="勾选"/>
 </LinearLayout>

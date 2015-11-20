@@ -6,9 +6,13 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 
+import com.f2prateek.rx.preferences.Preference;
 import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.jakewharton.rxbinding.view.RxView;
+import com.jakewharton.rxbinding.widget.RxCompoundButton;
 
 import java.util.concurrent.TimeUnit;
 
@@ -50,36 +54,21 @@ public class MainActivity extends Activity {
 
         testThrottle();
 
-        Observable.just("hello")
-                //指定被观察者在新的线程中生产数据
-                .subscribeOn(Schedulers.newThread())
-                //指定观察者在UI主线程接收数据
-                .observeOn(AndroidSchedulers.mainThread())
-                //因为上面指定了在UI线程接收数据，所以这里可以做更新UI的事情
-                .subscribe(System.out::println);
+        testCompoundButtonWithPreference();
+    }
 
-        Observable observable = Observable.create(new Observable.OnSubscribe<String>() {
-            @Override
-            public void call(Subscriber<? super String> subscriber) {
-                subscriber.onNext("a");
-                subscriber.onNext("b");
-                subscriber.onNext("c");
-                subscriber.onCompleted();
-            }
-        });
+    private void testCompoundButtonWithPreference() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        RxSharedPreferences rxPreferences = RxSharedPreferences.create(preferences);
 
-        observable.subscribe(new Subscriber() {
-            @Override
-            public void onCompleted() {
-            }
+        Preference<Boolean> checked = rxPreferences.getBoolean("checked", true);
 
-            @Override
-            public void onError(Throwable e) {
-            }
+        CheckBox checkBox = (CheckBox) findViewById(R.id.cb_test);
+        RxCompoundButton.checkedChanges(checkBox)
+                .subscribe(checked.asAction());
 
-            @Override
-            public void onNext(Object o) {
-            }
+        checked.asObservable().subscribe(aBoolean -> {
+            System.out.println("----------------checked: " + aBoolean);
         });
     }
 
@@ -131,11 +120,8 @@ public class MainActivity extends Activity {
     private void testThrottle() {
         RxView.clicks(findViewById(R.id.btn_throttle))
                 .throttleFirst(1, TimeUnit.SECONDS)
-                .subscribe(new Action1<Void>() {
-                    @Override
-                    public void call(Void aVoid) {
-                        System.out.println("click");
-                    }
+                .subscribe(aVoid -> {
+                    System.out.println("click");
                 });
     }
 
