@@ -3,6 +3,7 @@ package com.github.lzyzsd.rxexamples;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.View;
@@ -21,6 +22,9 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Observable;
 import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class MainActivity extends Activity {
@@ -35,22 +39,51 @@ public class MainActivity extends Activity {
         testMerge();
     }
 
+    RxSharedPreferences rxPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        rxPreferences = RxSharedPreferences.create(preferences);
 
         ButterKnife.bind(this);
 
         testThrottle();
 
         testCompoundButtonWithPreference();
+
+        Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                printThread(0);
+                subscriber.onNext("ccc");
+                subscriber.onCompleted();
+            }
+        }).subscribeOn(Schedulers.newThread())
+        .doOnNext(s -> printThread(1))
+        .observeOn(Schedulers.io())
+        .observeOn(Schedulers.newThread())
+        .doOnNext(s -> {
+            printThread(2);
+        })
+        .subscribeOn(Schedulers.io())
+        .doOnNext(s -> {
+            printThread(4);
+        })
+        .observeOn(Schedulers.io())
+        .subscribe(s -> {
+            printThread(3);
+        });
+    }
+
+    private void printThread(int i) {
+        System.out.println("------"+i+"----"+Thread.currentThread().getId()+Thread.currentThread().getName());
     }
 
     private void testCompoundButtonWithPreference() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        RxSharedPreferences rxPreferences = RxSharedPreferences.create(preferences);
-
         Preference<Boolean> checked = rxPreferences.getBoolean("checked", true);
 
         CheckBox checkBox = (CheckBox) findViewById(R.id.cb_test);
